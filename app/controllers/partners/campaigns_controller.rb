@@ -18,6 +18,10 @@ module Partners
       @campaign = @vaccination_center.campaigns.build(ends_at: 1.hour.from_now)
     end
 
+    def campaign_creator
+      @campaign = @vaccination_center.campaigns.build(ends_at: 1.hour.from_now)
+    end
+
     def create
       @campaign = @vaccination_center.campaigns.build(create_params)
       @campaign.partner = current_partner

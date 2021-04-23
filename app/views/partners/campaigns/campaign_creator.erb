@@ -1,0 +1,8 @@
+<div class="container">
+  <%= render "components/page_title", poulet: "Lancer une campagne" %>
+  <%= form_with model: [:partners, @vaccination_center, @campaign] do |form| %>
+    <%#= form.text_field :title %>
+    <%= form.datetime_local_field :ends_at %>
+    <%= form.submit %>
+  <% end %>
+</div>
