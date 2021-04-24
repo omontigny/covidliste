@@ -19,7 +19,7 @@ module Partners
     end
 
     def campaign_creator
-      @campaign = @vaccination_center.campaigns.build(ends_at: 1.hour.from_now)
+      @campaign = @vaccination_center.build_campaign_smart_defaults
     end
 
     def create
@@ -34,7 +34,11 @@ module Partners
         redirect_to partners_campaign_path(@campaign)
       else
         @campaign.max_distance_in_meters = @campaign.max_distance_in_meters / 1000
-        render :new
+        if params["from_campaign_creator"]
+          render :campaign_creator
+        else
+          render :new
+        end
       end
     end
 
@@ -54,7 +58,7 @@ module Partners
 
       reach = @vaccination_center.reachable_users_query(**payload).count
       render json: {
-        reach: Rails.env.production? ? reach : 1,
+        reach: reach,
         enough: reach >= (Vaccine.minimum_reach_to_dose_ratio(vaccine_type) * available_doses)
       }
     end

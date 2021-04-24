@@ -1,8 +1,69 @@
 <div class="container">
-  <%= render "components/page_title", poulet: "Lancer une campagne" %>
-  <%= form_with model: [:partners, @vaccination_center, @campaign] do |form| %>
-    <%#= form.text_field :title %>
-    <%= form.datetime_local_field :ends_at %>
-    <%= form.submit %>
+  <%= render "components/page_title", title: "Lancer une campagne" %>
+  <% if @campaign.errors.any? %>
+    <% @campaign.errors.full_messages.each do |message| %>
+      <h3><%= message %> </h3>
+    <% end %>
+  <% end %>
+
+  <%= simple_form_for(
+        [:partners, @vaccination_center, @campaign],
+        data: {
+          controller: "campaign-creator",
+          campaign_creator_simulate_path_value: simulate_reach_partners_vaccination_center_campaigns_path(@vaccination_center),
+          campaign_creator_max_distance_in_km_value: Campaign::MAX_DISTANCE_IN_KM,
+          campaign_creator_loading_reach_class: "campaign-creator--loading-reach"
+        }
+      ) do |f| %>
+
+    <input type="hidden" value="1" name="from_campaign_creator">
+
+    <%= f.input_field :available_doses,
+      as: :integer,
+      min: 1,
+      max: Campaign::MAX_DOSES,
+      "data-campaign-creator-target": "availableDoses",
+      "data-action": "change->campaign-creator#formChanged"
+    %>
+    <%= f.input_field :vaccine_type,
+      collection: Vaccine::Brands::ALL,
+      label_method: :capitalize,
+      "data-campaign-creator-target": "vaccineType",
+      "data-action": "change->campaign-creator#formChanged"
+    %>
+
+
+    <%= f.input_field :starts_at, as: :time %>
+    <%= f.input_field :ends_at, as: :time %>
+
+    <%= f.input_field :extra_info
+    %>
+
+
+    <%= f.input_field :min_age,
+      min: 18,
+      max: 130,
+      "data-campaign-creator-target": "minAge",
+      "data-action": "change->campaign-creator#formChanged"
+    %>
+
+    <%= f.input_field :max_age,
+      min: 18,
+      max: 130,
+      "data-campaign-creator-target": "maxAge",
+      "data-action": "change->campaign-creator#formChanged"
+    %>
+
+    <%= f.input_field :max_distance_in_meters,
+      min: 1,
+      max: Campaign::MAX_DISTANCE_IN_KM,
+      "data-campaign-creator-target": "maxDistance",
+      "data-action": "change->campaign-creator#formChanged"
+    %>
+
+
+    <%= f.button :submit, "Envoyer les SMS aux volontaires !",
+      class: "btn btn-primary mt-3",
+      data: {new_campaign_target: "submitButton", disable_with: "Création de la campagne et envoi..."} %>
   <% end %>
 </div>
